@@ -26,6 +26,20 @@ class ReadBuffer:
         size = int.from_bytes(size_b, byteorder="big")
         return size
 
+    def read_header(self):
+        size = int.from_bytes(self.file.read(4), byteorder="big")
+        codes_size = int.from_bytes(self.file.read(1), byteorder="big")
+        codes = dict()
+        for i in range(codes_size):
+            sym = int.from_bytes(self.file.read(1), byteorder="big")
+            size_code = int.from_bytes(self.file.read(1), byteorder="big")
+            n = binascii.hexlify(self.file.read(2))
+            result_code = "{0:016b}".format((int(n, 16)))
+            code = result_code[:size_code]
+            codes[code] = chr(sym)
+            # print("Sym: ", sym, " code: ", code, " size_of_code: ", size_code, "result_code: ", result_code)
+        return size, codes
+
     def convert_from_bytes(self):
         n = binascii.hexlify(self.portion)
         frmt = "{0:0%db}" % (len(self.portion)*8)

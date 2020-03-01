@@ -1,6 +1,3 @@
-import sys
-
-
 class BytesBufferWriter:
     def __init__(self, buffer_size: int = 1024*128, filename: str = "result.huf"):
         self.string_buffer = ""
@@ -46,9 +43,22 @@ class BytesBufferWriter:
                 self.__write_to_file()
         self.file.close()
 
-    def write_header(self, filesize: int, codes: list):
+    def __write_bytes(self, value: int, size: int):
+        self.file.write(value.to_bytes(size, byteorder="big"))
+
+    def write_header(self, filesize: int, codes: dict):
         size_b = filesize.to_bytes(4, byteorder="big")
         self.file.write(size_b)
+        codes_size = len(codes)
+        print("Codes table size: ", codes_size)
+        self.file.write(codes_size.to_bytes(1, byteorder="big"))
+        for sym, code in codes.items():
+            self.file.write(sym.to_bytes(1, byteorder="big"))
+            size = len(code)
+            self.file.write(size.to_bytes(1, byteorder="big"))
+            result_code = "0" * (16-size) + code
+            self.file.write(int(result_code, 2).to_bytes(2, byteorder="big"))
+            print("Sym: ", sym, " code: ", code, " size_of_code: ", size, "result_code: ", result_code)
 
 
 class WriteBuffer:
@@ -69,4 +79,3 @@ class WriteBuffer:
     def close(self):
         self.__write_to_file()
         self.file.close()
-

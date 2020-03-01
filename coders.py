@@ -34,9 +34,6 @@ class Encoder:
     def get_codes(self):
         return self.__codes
 
-    def get_reversed_codes(self):
-        return {v: chr(k) for k, v in self.__codes.items()}
-
     def print_codes(self):
         for k, v in self.__codes.items():
             print(chr(k), k, v)
