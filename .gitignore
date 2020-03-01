@@ -1,2 +1,5 @@
 .idea
 *.huf
+__pycache__/
+*.jpg
+*.txt

@@ -2,6 +2,14 @@ from priority_queue import PriorityQueue
 from tree import Tree
 
 
+def get_bytes(value: int, size: int):
+    return value.to_bytes(size, byteorder="big")
+
+
+def from_bytes(value: bytes):
+    return int.from_bytes(value, byteorder="big")
+
+
 class Encoder:
     def __init__(self, freq):
         self.freq = freq

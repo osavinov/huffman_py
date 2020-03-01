@@ -1,3 +1,6 @@
+from coders import get_bytes
+
+
 class BytesBufferWriter:
     def __init__(self, buffer_size: int = 1024*128, filename: str = "result.huf"):
         self.string_buffer = ""
@@ -19,7 +22,7 @@ class BytesBufferWriter:
             self.string_buffer += code[rest:]
 
     def __convert_to_bytes(self):
-        self.bytes_buffer = int(self.string_buffer, 2).to_bytes(self.buffer_size, byteorder="big")
+        self.bytes_buffer = get_bytes(int(self.string_buffer, 2), self.buffer_size)
         self.__write_to_file()
         self.string_buffer = ""
         self.bytes_buffer = None
@@ -33,32 +36,28 @@ class BytesBufferWriter:
             rest = size_bits % 8
             size_bytes = size_bits // 8
             if rest > 0:
-                self.bytes_buffer = int(self.string_buffer[:-rest], 2).to_bytes(size_bytes, byteorder="big")
+                self.bytes_buffer = get_bytes(int(self.string_buffer[:-rest], 2), size_bytes)
                 self.__write_to_file()
                 last_byte = self.string_buffer[-rest:] + "0"*(8-rest)
-                self.bytes_buffer = int(last_byte, 2).to_bytes(1, byteorder="big")
+                self.bytes_buffer = get_bytes(int(last_byte, 2), 1)
                 self.__write_to_file()
             else:
-                self.bytes_buffer = int(self.string_buffer, 2).to_bytes(size_bytes, byteorder="big")
+                self.bytes_buffer = get_bytes(int(self.string_buffer, 2), size_bytes)
                 self.__write_to_file()
         self.file.close()
 
-    def __write_bytes(self, value: int, size: int):
-        self.file.write(value.to_bytes(size, byteorder="big"))
-
     def write_header(self, filesize: int, codes: dict):
-        size_b = filesize.to_bytes(4, byteorder="big")
+        size_b = get_bytes(filesize, 4)
         self.file.write(size_b)
-        codes_size = len(codes)
-        print("Codes table size: ", codes_size)
-        self.file.write(codes_size.to_bytes(1, byteorder="big"))
+        codes_size = len(codes) - 1
+        self.file.write(get_bytes(codes_size, 1))
         for sym, code in codes.items():
-            self.file.write(sym.to_bytes(1, byteorder="big"))
+            self.file.write(get_bytes(sym, 1))
             size = len(code)
-            self.file.write(size.to_bytes(1, byteorder="big"))
+            self.file.write(get_bytes(size, 1))
             result_code = "0" * (16-size) + code
-            self.file.write(int(result_code, 2).to_bytes(2, byteorder="big"))
-            print("Sym: ", sym, " code: ", code, " size_of_code: ", size, "result_code: ", result_code)
+            self.file.write(get_bytes(int(result_code, 2), 2))
+            # print("Sym: ", sym, " code: ", code, " size_of_code: ", size, "result_code: ", result_code)
 
 
 class WriteBuffer:

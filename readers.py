@@ -1,6 +1,7 @@
 import os
 import binascii
 from collections import defaultdict
+from coders import from_bytes
 
 
 class ReadBuffer:
@@ -21,29 +22,24 @@ class ReadBuffer:
         self.portion = self.file.read(self.buffer_size)
         return self.portion
 
-    def read_sourcefile_size(self):
-        size_b = self.file.read(4)
-        size = int.from_bytes(size_b, byteorder="big")
-        return size
-
     def read_header(self):
-        size = int.from_bytes(self.file.read(4), byteorder="big")
-        codes_size = int.from_bytes(self.file.read(1), byteorder="big")
+        file_size = from_bytes(self.file.read(4)) + 1
+        codes_size = from_bytes(self.file.read(1))
         codes = dict()
         for i in range(codes_size):
-            sym = int.from_bytes(self.file.read(1), byteorder="big")
-            size_code = int.from_bytes(self.file.read(1), byteorder="big")
-            n = binascii.hexlify(self.file.read(2))
-            result_code = "{0:016b}".format((int(n, 16)))
-            code = result_code[:size_code]
+            sym = from_bytes(self.file.read(1))
+            size_code = from_bytes(self.file.read(1))
+            code_int = int(binascii.hexlify(self.file.read(2)), 16)
+            result_code = "{0:016b}".format(code_int)
+            code = result_code[-size_code:]
             codes[code] = chr(sym)
             # print("Sym: ", sym, " code: ", code, " size_of_code: ", size_code, "result_code: ", result_code)
-        return size, codes
+        return file_size, codes
 
     def convert_from_bytes(self):
         n = binascii.hexlify(self.portion)
-        frmt = "{0:0%db}" % (len(self.portion)*8)
-        return frmt.format((int(n, 16)))
+        formatter = "{0:0%db}" % (len(self.portion)*8)
+        return formatter.format((int(n, 16)))
 
     def scan_file(self):
         self.file = open(self.filename, "rb")
