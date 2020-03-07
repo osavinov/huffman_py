@@ -2,6 +2,7 @@ import os
 import binascii
 from collections import defaultdict
 from coders import from_bytes
+from typing import List, Dict, Union, Any, Tuple
 
 
 class ReadBuffer:
@@ -18,11 +19,11 @@ class ReadBuffer:
         self.file = open(self.filename, "rb")
         self.filesize = os.stat(self.filename).st_size
 
-    def read(self):
+    def read(self) -> bytes:
         self.portion = self.file.read(self.buffer_size)
         return self.portion
 
-    def read_header(self):
+    def read_header(self) -> Tuple[Union[int, Any], Dict[str, str]]:
         file_size = from_bytes(self.file.read(4)) + 1
         codes_size = from_bytes(self.file.read(1))
         codes = dict()
@@ -36,12 +37,12 @@ class ReadBuffer:
             # print("Sym: ", sym, " code: ", code, " size_of_code: ", size_code, "result_code: ", result_code)
         return file_size, codes
 
-    def convert_from_bytes(self):
+    def convert_from_bytes(self) -> str:
         n = binascii.hexlify(self.portion)
         formatter = "{0:0%db}" % (len(self.portion)*8)
         return formatter.format((int(n, 16)))
 
-    def scan_file(self):
+    def scan_file(self) -> List[Dict[str, Union[int, Any]]]:
         self.file = open(self.filename, "rb")
         portion = self.read()
         freq = defaultdict(int)

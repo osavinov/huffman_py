@@ -1,5 +1,7 @@
 from priority_queue import PriorityQueue
 from tree import Tree
+from codes import Code
+from typing import Dict
 
 
 def get_bytes(value: int, size: int):
@@ -13,7 +15,7 @@ def from_bytes(value: bytes):
 class Encoder:
     def __init__(self, freq):
         self.freq = freq
-        self.__codes = None
+        self.__codes: Dict[str, Code] = {}
 
     def generate_codes(self):
         queue = PriorityQueue()
@@ -39,15 +41,9 @@ class Encoder:
         huffman_tree = queue.get()[0]
         self.__codes = huffman_tree.walk()
 
-    def get_codes(self):
+    def get_codes(self) -> Dict[str, Code]:
         return self.__codes
 
     def print_codes(self):
         for k, v in self.__codes.items():
-            print(chr(k), k, v)
-
-    def check_codes(self):
-        for char, code in self.__codes.items():
-            for x in self.__codes.values():
-                if x != code and code.startswith(x):
-                    print(code, x)
+            print("ch:", k, "str_code:", v, "int_code", v.get_code())

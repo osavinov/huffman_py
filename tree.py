@@ -1,20 +1,52 @@
+from typing import Dict, Optional
+from codes import Code
+
+
 class Tree:
-    def __init__(self, data: dict):
+    # instance attributes
+    left: Optional["Tree"]
+    right: Optional["Tree"]
+    data: Dict
+
+    # class attribute
+    __codes: Dict[str, Code] = {}
+
+    def __init__(self, data: Dict):
         self.left = None
         self.right = None
         self.data = data
 
-    def add_right(self, r_tree):
+    def add_right(self, r_tree: "Tree"):
         self.right = r_tree
 
-    def add_left(self, l_tree):
+    def add_left(self, l_tree: "Tree"):
         self.left = l_tree
 
-    def walk(self, code: str = "", codes: dict = {}):
+    def walk(self, code: int = 1) -> Dict[str, Code]:
         if self.left:
-            self.left.walk(code+"0")
+            new_code = code << 1
+            new_code |= 0b0
+            self.left.walk(new_code)
         if self.right:
-            self.right.walk(code+"1")
+            new_code = code << 1
+            new_code |= 0b1
+            self.right.walk(new_code)
         if self.data["char"] != "null":
-            codes[self.data["char"]] = code
-        return codes
+            self.__codes[self.data["char"]] = Code(code)
+        return self.__codes
+
+    def clean(self):
+        if self.left:
+            self.left.clean()
+        if self.right:
+            self.right.clean()
+        del self
+
+    def check(self):
+        node_weight: int = self.data.get("weight")
+        if self.right is not None and self.left is not None:
+            left_weight: int = self.left.data.get("weight")
+            right_weight: int = self.right.data.get("weight")
+            if left_weight + right_weight != node_weight:
+                raise Exception("For node with weight %d doesn't match sum of children %d, %d" %
+                                (node_weight, left_weight, right_weight))

@@ -3,3 +3,4 @@
 __pycache__/
 *.jpg
 *.txt
+tests/.pytest_cache

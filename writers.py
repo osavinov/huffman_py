@@ -3,35 +3,26 @@ from coders import get_bytes
 
 class BytesBufferWriter:
     def __init__(self, buffer_size: int = 1024*128, filename: str = "result.huf"):
-        self.string_buffer = ""
-        self.bytes_buffer = None
-        self.buffer_size = buffer_size
+        # bit-storage for code-string, binary codes 'concatenates', leading 1 uses for bit_length()
+        self.bit_buffer: int = 1
+        # bytes-buffer ready for writing
+        self.bytes_buffer: bytes = b''
+        # maximum size of bytes_buffer, buffer_size * 8 must be equal with bit_buffer.bit_length()
+        self.buffer_size: int = buffer_size
+        # binary file we want to write
         self.file = open(filename, "wb")
 
-    def add(self, code):
-        rest = self.buffer_size * 8 - len(self.string_buffer)
-
-        if rest >= len(code):
-            self.string_buffer += code
-        elif rest == 0:
-            self.__convert_to_bytes()
-            self.string_buffer += code
-        else:
-            self.string_buffer += code[:rest]
-            self.__convert_to_bytes()
-            self.string_buffer += code[rest:]
-
-    def __convert_to_bytes(self):
-        self.bytes_buffer = get_bytes(int(self.string_buffer, 2), self.buffer_size)
+    def __write(self):
+        self.bytes_buffer = int.to_bytes(self.bit_buffer, self.buffer_size, byteorder="big")
         self.__write_to_file()
-        self.string_buffer = ""
-        self.bytes_buffer = None
+        self.bytes_buffer = b''
+        self.bit_buffer = 0
 
     def __write_to_file(self):
         self.file.write(self.bytes_buffer)
 
     def close(self):
-        size_bits = len(self.string_buffer)
+        size_bits = len(self.bytes_buffer) * 8
         if size_bits > 0:
             rest = size_bits % 8
             size_bytes = size_bits // 8
