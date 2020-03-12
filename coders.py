@@ -15,7 +15,7 @@ def from_bytes(value: bytes):
 class Encoder:
     def __init__(self, freq):
         self.freq = freq
-        self.__codes: Dict[str, Code] = {}
+        self.__codes: Dict[int, Code] = {}
 
     def generate_codes(self):
         queue = PriorityQueue()
@@ -41,9 +41,9 @@ class Encoder:
         huffman_tree = queue.get()[0]
         self.__codes = huffman_tree.walk()
 
-    def get_codes(self) -> Dict[str, Code]:
+    def get_codes(self) -> Dict[int, Code]:
         return self.__codes
 
     def print_codes(self):
         for k, v in self.__codes.items():
-            print("ch:", k, "str_code:", v, "int_code", v.get_code())
+            print("ch:", chr(k), "str_code:", v, "int_code", v.get_code())

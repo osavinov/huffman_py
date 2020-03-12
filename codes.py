@@ -1,7 +1,10 @@
+from typing import Tuple
+
+
 class Code:
     __code: int
 
-    # we initialize with value with leading 1, because codes might start with 0
+    # we initialize with value with leading 1, because codes might start with 0 bit
     def __init__(self, val: int):
         self.__code = 0
         self.__code >>= val.bit_length()
@@ -25,10 +28,7 @@ class Code:
     def get_code(self) -> int:
         return self.__code
 
-    def get_part(self, num: int) -> int:
-        if num == 0:
-            return 0
-        elif num < 0:
-            return self.value() >> (self.__len__()+num)
-        elif num > 0:
-            return self.value() & (2**num - 1)
+    def split(self, ind: int) -> Tuple["Code", "Code"]:
+        start: Code = Code(self.get_code() & (2**ind - 1) | 2**ind)
+        end: Code = Code(self.get_code() >> ind)
+        return start, end

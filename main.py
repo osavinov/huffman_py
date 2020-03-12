@@ -1,3 +1,5 @@
+from idna import unichr
+
 from coders import Encoder
 from writers import BytesBufferWriter, WriteBuffer
 from readers import ReadBuffer
@@ -18,18 +20,18 @@ def encode(source_file: str, archive_file: str):
     codes = encoder.get_codes()
     encoder.print_codes()
     print("Codes generation: --- %s seconds ---" % (time.time() - start_time))
-    #start_time = time.time()
-    #output_archive = BytesBufferWriter(filename=archive_file)
-    #input_file.open()
-    #output_archive.write_header(input_file.filesize, codes)
-    #portion = input_file.read()
-    #while portion:
-    #    for c in portion:
-    #        output_archive.add(codes[c])
-    #    portion = input_file.read()
-    #output_archive.close()
-    #input_file.close()
-    #print("Encoding: --- %s seconds ---" % (time.time() - start_time))
+    start_time = time.time()
+    output_archive = BytesBufferWriter(filename=archive_file)
+    input_file.open()
+    output_archive.write_header(input_file.filesize, codes)
+    portion = input_file.read()
+    while portion:
+        for c in portion:
+            output_archive.add_code(codes.get(c))
+        portion = input_file.read()
+    output_archive.close()
+    input_file.close()
+    print("Encoding: --- %s seconds ---" % (time.time() - start_time))
 
 
 def decode(archive_file: str, dest_file: str):

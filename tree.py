@@ -9,7 +9,7 @@ class Tree:
     data: Dict
 
     # class attribute
-    __codes: Dict[str, Code] = {}
+    __codes: Dict[int, Code] = {}
 
     def __init__(self, data: Dict):
         self.left = None
@@ -22,7 +22,8 @@ class Tree:
     def add_left(self, l_tree: "Tree"):
         self.left = l_tree
 
-    def walk(self, code: int = 1) -> Dict[str, Code]:
+    # code starts with leading 1
+    def walk(self, code: int = 1) -> Dict[int, Code]:
         if self.left:
             new_code = code << 1
             new_code |= 0b0
